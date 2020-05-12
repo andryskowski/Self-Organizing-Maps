@@ -3,39 +3,47 @@ import numpy as np
 import math
 lambdaa = 0.8
 r=1
-epoch = 1000
+epoch = 10
 # wspolczynnik uczenia
 eta0 = 0.8
 #promien sasiedztwa
 r0 = 0.5
 pozycjaZwyciezcy=0
 d=0
+
+#nowe stale
+krokMinimum = 0.01 
+krokMax = 0.5
+promienMinimum = 0.01 
+promienMax = 0.5
+
 #wynik=0
 def wykres(Points, Layer):
 	x, y = np.loadtxt('file2.txt', delimiter=',', unpack=True)
 	a=np.loadtxt('file2.txt', delimiter=',', unpack=True)
 	#plt.plot(x, y, color='b', linestyle='', marker='.')
-	x_list = [1.4, 1.3, 1.9, 5.4]
-	y_list = [8, 4, -3, -5]
+	#-1.9,-1.8,-1.6, -1.2, -1.0, -0.8
+	#1.8, 1.6, 1.75, 1.4, 1.2, 1.5
+
+	x_list = [-1.9,-1.8,-1.6, -1.2, -1.0, -0.8]
+	y_list = [1.8, 1.6, 1.75, 1.4, 1.2, 1.5]
 	for j in range(len(Layer)):
 		plt.plot(float(Layer[j].weightX), float(Layer[j].weightY), color='r', linestyle='',marker='*')
-	for i in range(len(Points)):
-		plt.plot(float(Points[i].x), float(Points[i].y), color='g', linestyle='',marker='.')
+	for i in range(len(x_list)):
+		plt.plot(float(x_list[i]), float(y_list[i]), color='g', linestyle='',marker='.')
 	plt.show()
 
 class Neuron:
 	def __init__(self,weightX,weightY):
-		weightX=10* np.random.random_sample((1)) - 10
+		weightX= np.random.random_sample((1)) - 2
 		self.weightX=weightX
-		weightY=10* np.random.random_sample((1)) - 10
+		weightY=2* np.random.random_sample((1)) +1
 		self.weightY=weightY
-	def punkty(self):
-		x,y = [1.5, 2.3, 2.5, 8.2, 8.3, 9.2]
+	#def punkty(self):
+		#x,y = [1.5, 2.3, 2.5, 8.2, 8.3, 9.2]
 
 class Point:
    def __init__(self,x,y):
-       x = 10* np.random.random_sample((1)) - 10
-       y = 10* np.random.random_sample((1)) - 10
        self.x=x
        self.y=y
        wynik=0
@@ -44,14 +52,18 @@ class Point:
        self.podPierw=podPierw
        pozycjaZwyciezcy=0
        self.pozycjaZwyciezcy=pozycjaZwyciezcy
-	   #Neuron jest randomowym punktem z przedzialu [-10,10]
+	   #Neuron jest randomowym punktem z przedzialu [-3,3]
    def calculateDistance(self,Layer):
 	   	#to co pod pierwiastkiem we wzorze ... (dopisac wzor)
 	   	#for i=0, i<allInputsSize, i++; J i
 	   i=0
 	   j=0
 	   Wyniki = []
-
+	   print(self.x, self.y)
+	   print("OTOTOTO")
+	   print(Layer[0].weightX, Layer[0].weightY)
+	   print(Layer[1].weightX, Layer[1].weightY)
+	   print("ABUDABU")
 	   for i in range(len(Layer)):
 	   	podPierw=pow((self.x-float(Layer[i].weightX)),2)+pow((self.y-float(Layer[i].weightY)),2)
 	   	pozMin=0
@@ -76,9 +88,10 @@ class Point:
   # 	    self.weights[i]+= eta*exp(-d*d/(2*r))*(V[i]-weights[i]);
 
    def updateWeights(self, Layer, eta, r):
-   	for i in range(len(Layer)):
-   		Layer[i].weightX+=eta*math.exp(-d*d/2*r)*(self.x - Layer[i].weightX)
-   		Layer[i].weightY+=eta*math.exp(-d*d/2*r)*(self.y - Layer[i].weightY)
+    print(d)
+    for i in range(len(Layer)):
+        Layer[i].weightX+=eta*math.exp(-d*d/2*r)*(self.x - Layer[i].weightX)
+        Layer[i].weightY+=eta*math.exp(-d*d/2*r)*(self.y - Layer[i].weightY)
    def showPoints(self):
    	print (self.x, self.y)
 
@@ -90,11 +103,15 @@ def main():
 
 	n = int(input("Wprowadz liczbe neuronow n: "))
 	#for 0 -> n odbywa sie dodawanie neuronow do wektora layer
+
+	x_list = [-1.9,-1.8,-1.6, -1.2, -1.0, -0.8]
+	y_list = [1.8, 1.6, 1.4, 1.4, 1.2, 1.5]
+
 	Points=[]
 	i=0
-	while i<n:
-		x = 10* np.random.random_sample((1)) - 10
-		y = 10* np.random.random_sample((1)) - 10
+	while i<6:
+		x = x_list[i]
+		y = y_list[i]
 		Points.append(Point(x,y))
 		i+=1
 
@@ -121,17 +138,28 @@ def main():
 	 	#n1.calculateDistance(inputVector)
 	#KOHONEN
 
-	epoki=[0,1]
-	for j in range(len(epoki)):
-		print("epoka ", j+1)
-		eta=eta0*(epoch-e)/epoch
-		r=r0*math.exp(-e/lambdaa)		
+	#nowe stale od fajnej dziewczyny Karoliny
+	krokMinimum = 0.01 
+	krokMax = 0.5
+	promienMinimum = 0.01 
+	promienMax = 0.5
+
+
+	#epoki=[0,1]
+	while j<6:
+		print("krok ", j+1)
+		r=promienMax*pow(promienMinimum/promienMax,(j/6))	
+		eta=krokMax*pow(krokMinimum/krokMax,(j/6))	
 		for i in range(len(Points)):
 			Points[i].calculateDistance(Layer)
 			Points[i].calculateNeuronDistance(Layer)
 			Points[i].updateWeights(Layer,eta,r)
 			print(" ")
-	wykres(Points, Layer)	
+		j+=1
+
+	wykres(Points, Layer)
+
+	
 
 
 
