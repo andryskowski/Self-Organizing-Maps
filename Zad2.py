@@ -35,6 +35,7 @@ class Neuron:
 		self.weightX=weightX
 		weightY=np.random.uniform(1,2)
 		self.weightY=weightY
+		self.pot=0.76
 
 class Point:
    def __init__(self,x,y):
@@ -66,6 +67,8 @@ class Point:
 	   print(min(Wyniki), ": najmniejsza odleglosc miedzy Punktem, a Neuronem (zwycieskim)")
 	   Wyniki.clear()
 	   pozycjaZwyc.append(pozycjaZwyciezcy)
+
+	   
 	   print(pozycjaZwyc[0], ": to jest pozycja, na ktorej jest zwycieski neuron")
 	   print("Neuron #0")
 	   print(Layer[0].weightX)
