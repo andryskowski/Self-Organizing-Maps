@@ -20,8 +20,9 @@ promienMax = 0.5
 def wykres(Points, Layer):
 	x, y = np.loadtxt('file2.txt', delimiter=',', unpack=True)
 	a=np.loadtxt('file2.txt', delimiter=',', unpack=True)
+	x, y = np.loadtxt('file.txt', delimiter=',', unpack=True)
 	x_list = [-1.9,-1.8,-1.6, -1.2, -1.0, -0.8]
-	y_list = [1.8, 1.6, 1.75, 1.4, 1.2, 1.5]
+	y_list = [1.8, 1.6, 1.9, 1.4, 1.2, 1.5]
 	for j in range(len(Layer)):
 		plt.plot(float(Layer[j].weightX), float(Layer[j].weightY), color='r', linestyle='',marker='*')
 	for i in range(len(x_list)):
@@ -81,8 +82,8 @@ class Point:
 
    def updateWeights(self, Layer, eta, r):
     for i in range(len(Layer)):
-        Layer[i].weightX+=eta*math.exp(-d[i]*d[i]/2*r)*(self.x - Layer[i].weightX)
-        Layer[i].weightY+=eta*math.exp(-d[i]*d[i]/2*r)*(self.y - Layer[i].weightY)
+        Layer[i].weightX+=eta*math.exp(-d[i]*d[i]/(2*r*r))*(self.x - Layer[i].weightX)
+        Layer[i].weightY+=eta*math.exp(-d[i]*d[i]/(2*r*r))*(self.y - Layer[i].weightY)
    def showPoints(self):
    	print (self.x, self.y)
 
@@ -91,7 +92,7 @@ def main():
 	n = int(input("Wprowadz liczbe neuronow n: "))
 
 	x_list = [-1.9,-1.8,-1.6, -1.2, -1.0, -0.8]
-	y_list = [1.8, 1.6, 1.4, 1.4, 1.2, 1.5]
+	y_list = [1.8, 1.6, 1.9, 1.4, 1.2, 1.5]
 
 	Points=[]
 	i=0
@@ -100,7 +101,6 @@ def main():
 		y = y_list[i]
 		Points.append(Point(x,y))
 		i+=1
-	np.random.shuffle(Points)
 
 	Layer=[]
 	i=0
@@ -110,23 +110,26 @@ def main():
 		Layer.append(Neuron(weightX,weightY))
 		i+=1
 
-	krokMinimum = 0.01 
+	krokMinimum = 0.01
 	krokMax = 0.5
-	promienMinimum = 0.01 
-	promienMax = 0.5
+	promienMinimum = 0.01
+	promienMax = 0.1
 	j=0
 
-	while j<6:
-		r=promienMax*pow(promienMinimum/promienMax,(j/6))	
-		eta=krokMax*pow(krokMinimum/krokMax,(j/6))	
-		for i in range(len(Points)):
-			Points[i].calculateDistance(Layer)
-			Points[i].calculateNeuronDistance(Layer)
-			Points[i].updateWeights(Layer,eta,r)
-			print(" ")
-		j+=1
-
 	wykres(Points, Layer)
+
+
+	for i in range(len(Points)):
+		Points[i].calculateDistance(Layer)
+		r=promienMax*pow(promienMinimum/promienMax,(i/6))	
+		eta=krokMax*pow(krokMinimum/krokMax,(i/6))
+		Points[i].calculateNeuronDistance(Layer)
+		Points[i].updateWeights(Layer,eta,r)
+		wykres(Points, Layer)
+		print(" ")
+	
+
+
 
 if __name__ == '__main__':
 	main()
