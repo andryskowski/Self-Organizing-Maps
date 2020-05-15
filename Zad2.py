@@ -1,21 +1,8 @@
 from matplotlib import pyplot as plt
 import numpy as np
 import math
-lambdaa = 0.8
-r=1
-epoch = 10
-# wspolczynnik uczenia
-eta0 = 0.8
-#promien sasiedztwa
-r0 = 0.5
 pozycjaZwyc=[]
 d=[]
-#nowe stale
-krokMinimum = 0.01 
-krokMax = 0.5
-promienMinimum = 0.01 
-promienMax = 0.5
-
 #wynik=0
 def wykres(Points, Layer):
 	x, y = np.loadtxt('file2.txt', delimiter=',', unpack=True)
@@ -30,12 +17,13 @@ def wykres(Points, Layer):
 	plt.show()
 
 class Neuron:
-	def __init__(self,weightX,weightY):
+	def __init__(self,weightX,weightY,pot):
 		weightX= np.random.uniform(-2,0)
 		self.weightX=weightX
 		weightY=np.random.uniform(1,2)
 		self.weightY=weightY
-		self.pot=0.76
+		pot=0.76
+		self.pot=pot
 
 class Point:
    def __init__(self,x,y):
@@ -51,31 +39,34 @@ class Point:
 	   j=0
 	   Wyniki = []
 	   print(self.x, self.y)
-	   #print("OTOTOTO")
-	   #print(Layer[0].weightX, Layer[0].weightY)
-	   #print(Layer[1].weightX, Layer[1].weightY)
-	   #print("ABUDABU")
 	   pozycjaZwyc.clear()
 	   for i in range(len(Layer)):
 	   	podPierw=pow((self.x-float(Layer[i].weightX)),2)+pow((self.y-float(Layer[i].weightY)),2)
 	   	wynik=math.sqrt(podPierw)
 	   	print(wynik)
 	   	Wyniki.append(wynik)
-	   	#global pozycjaZwyciezcy
-	   #pozycjaZwyciezcy=Wyniki.index(minimalna)
+
 	   pozycjaZwyciezcy=np.argmin(Wyniki,axis=0)
 	   print(min(Wyniki), ": najmniejsza odleglosc miedzy Punktem, a Neuronem (zwycieskim)")
 	   Wyniki.clear()
 	   pozycjaZwyc.append(pozycjaZwyciezcy)
+	   #pot += (1/numberOfNeurons)
+	   pmin=0.75
+	   for i in range(len(Layer)):
+	   	if i==pozycjaZwyciezcy:   
+	   		Layer[i].pot-=0.75
+	   	else:
+	   		Layer[i].pot+=(1/100)
 
-	   
 	   print(pozycjaZwyc[0], ": to jest pozycja, na ktorej jest zwycieski neuron")
 	   print("Neuron #0")
 	   print(Layer[0].weightX)
 	   print(Layer[0].weightY)
+	   print(Layer[0].pot)
 	   print("Neuron #1")
 	   print(Layer[1].weightX)
 	   print(Layer[1].weightY)
+	   print(Layer[1].pot)
 
    def calculateNeuronDistance(self,Layer):
    	d.clear()
@@ -107,10 +98,11 @@ def main():
 
 	Layer=[]
 	i=0
+	pot=0.76
 	while i<n:
 		weightX=0
 		weightY=0
-		Layer.append(Neuron(weightX,weightY))
+		Layer.append(Neuron(weightX,weightY,pot))
 		i+=1
 
 	Layer[0].weightX=-1.3
