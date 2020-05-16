@@ -5,12 +5,7 @@ pozycjaZwyc=[]
 d=[]
 pmin=0.75
 
-def file_len(fname):
-    with open(fname) as f:
-        for i, l in enumerate(f):
-            pass
-    return i + 1
-
+#wynik=0
 def wykres(Points, Layer):
 	for j in range(len(Layer)):
 		plt.plot(float(Layer[j].weightX), float(Layer[j].weightY), color='r', linestyle='',marker='*')
@@ -35,7 +30,7 @@ class Point:
        self.wynik=wynik
        podPierw=0
        self.podPierw=podPierw
-
+	   #Neuron jest randomowym punktem z przedzialu [-3,3]
    def calculateDistance(self,Layer):
 	   i=0
 	   j=0
@@ -55,7 +50,14 @@ class Point:
 	   Wyniki.clear()
 	   pozycjaZwyc.append(pozycjaZwyciezcy)
 
+
 	   print(pozycjaZwyc[0], ": to jest pozycja, na ktorej jest zwycieski neuron")
+	   print("Neuron #0")
+	   print(Layer[0].weightX)
+	   print(Layer[0].weightY)
+	   print("Neuron #1")
+	   print(Layer[1].weightX)
+	   print(Layer[1].weightY)
 
    def Potentials(self, Layer):
    	for i in range(len(Layer)):
@@ -79,20 +81,14 @@ class Point:
    def showPoints(self):
    	print (self.x, self.y)
 
-   def error(self, Layer,P):
-    E=1/P*(pow(self.x-float(Layer[pozycjaZwyc[0]].weightX),2)+pow(self.y-float(Layer[pozycjaZwyc[0]].weightY),2))
-    print("to jest blad kwantyzacji-->")
-    print(E)
-
 def main():
 
 	n = int(input("Wprowadz liczbe neuronow n: "))
 	xList, yList = np.loadtxt('file.txt', delimiter=',', unpack=True)
-	numOfPoints=file_len('file.txt')
 
 	Points=[]
 	i=0
-	while i<numOfPoints:
+	while i<10000:
 		Points.append(Point(xList[i],yList[i]))
 		i+=1
 
@@ -114,15 +110,12 @@ def main():
 	wykres(Points, Layer)
 	for i in range(len(Points)):
 		Points[i].calculateDistance(Layer)
-		r=promienMax*pow(promienMinimum/promienMax,(i/numOfPoints))	
-		eta=krokMax*pow(krokMinimum/krokMax,(i/numOfPoints))
+		r=promienMax*pow(promienMinimum/promienMax,(i/10000))	
+		eta=krokMax*pow(krokMinimum/krokMax,(i/10000))
 		Points[i].calculateNeuronDistance(Layer)
-		if(i<np.floor(numOfPoints/2)):
+		if(i<np.floor(10000/2)):
 			Points[i].Potentials(Layer)
 		Points[i].updateWeights(Layer,eta,r)
-		if i>1:
-			P=i
-			Points[i].error(Layer,P)
 		print(" ")
 	wykres(Points, Layer)
 
