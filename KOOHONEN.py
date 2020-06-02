@@ -20,11 +20,11 @@ def wykres(Points, Layer):
 
 class Neuron:
 	def __init__(self,weightX,weightY,pot):
-		weightX= np.random.uniform(-10,12)
+		weightX= np.random.uniform(-10,10)
 		self.weightX=weightX
 		weightY=np.random.uniform(-10,10)
 		self.weightY=weightY
-		pot=0.76
+		pot=1
 		self.pot=pot
 
 class Point:
@@ -35,54 +35,54 @@ class Point:
        self.wynik=wynik
        podPierw=0
        self.podPierw=podPierw
-
+	#Funkcja transmisji neuronów jest przeważnie (i takiej należy użyć rozwiązując niniejsze zadanie) 
+	#funkcją odległości między wektorem wejściowym a wektorem wag
    def calculateDistance(self,Layer):
 	   i=0
 	   j=0
 	   Wyniki = []
-	   print(self.x, self.y)
-	   self.pot = 0.76
+	   #print(self.x, self.y)
 	   pozycjaZwyc.clear()
-	   for i in range(len(Layer)):
-	   		if Layer[i].pot>pmin:
-	   			podPierw=pow((self.x-float(Layer[i].weightX)),2)+pow((self.y-float(Layer[i].weightY)),2)
-	   			wynik=math.sqrt(podPierw)
-	   			print(wynik)
-	   			Wyniki.append(wynik)
+	   for i in range(len(Layer)): 
+	    if Layer[i].pot>pmin:	   		
+	   		podPierw=pow((self.x-float(Layer[i].weightX)),2)+pow((self.y-float(Layer[i].weightY)),2)
+	   		wynik=math.sqrt(podPierw)
+	   			#print(wynik)
+	   		Wyniki.append(wynik)
+	    else:
+	   		Layer[i].pot=1 	   	
 
 	   pozycjaZwyciezcy=np.argmin(Wyniki,axis=0)
-	   print(min(Wyniki), ": najmniejsza odleglosc miedzy Punktem, a Neuronem (zwycieskim)")
+	   #print(min(Wyniki), ": najmniejsza odleglosc miedzy Punktem, a Neuronem (zwycieskim)")
 	   Wyniki.clear()
 	   pozycjaZwyc.append(pozycjaZwyciezcy)
+	   #print(pozycjaZwyc[0], ": to jest pozycja, na ktorej jest zwycieski neuron")
 
-	   print(pozycjaZwyc[0], ": to jest pozycja, na ktorej jest zwycieski neuron")
-
-   def Potentials(self, Layer):
+   def Potentials(self, Layer, n):
    	for i in range(len(Layer)):
-	   	if i==pozycjaZwyc[0]:   
-	   		Layer[pozycjaZwyc[0]].pot-=pmin
+   		#print(Layer[i].pot)
+   		if pozycjaZwyc[0]==i:
+	   		Layer[i].pot-=pmin
 	   	else:
-	   		Layer[pozycjaZwyc[0]].pot+=(1/100)
+	   		Layer[i].pot+=(1/n)
 
    def calculateNeuronDistance(self,Layer):
    	d.clear()
    	for i in range(len(Layer)):
-   		if Layer[pozycjaZwyc[0]].pot>pmin:
+   		#if Layer[i].pot>pmin:   
    			podPierw=pow((float(Layer[pozycjaZwyc[0]].weightX)-float(Layer[i].weightX)),2)+pow((float(Layer[pozycjaZwyc[0]].weightY)-float(Layer[i].weightY)),2)
-   			d.append(math.sqrt(podPierw))		
+   			d.append(math.sqrt(podPierw))
 
    def updateWeights(self, Layer, eta, r):
     for i in range(len(Layer)):
-    	if Layer[pozycjaZwyc[0]].pot>pmin:
-        	Layer[i].weightX+=eta*math.exp(-d[i]*d[i]/(2*r*r))*(self.x - Layer[i].weightX)
-        	Layer[i].weightY+=eta*math.exp(-d[i]*d[i]/(2*r*r))*(self.y - Layer[i].weightY)
-   def showPoints(self):
-   	print (self.x, self.y)
+    	#if Layer[i].pot>pmin: 
+    		Layer[i].weightX+=eta*math.exp(-d[i]*d[i]/(2*r*r))*(self.x - Layer[i].weightX)
+    		Layer[i].weightY+=eta*math.exp(-d[i]*d[i]/(2*r*r))*(self.y - Layer[i].weightY)
 
    def error(self, Layer,P):
     E=1/P*(pow(self.x-float(Layer[pozycjaZwyc[0]].weightX),2)+pow(self.y-float(Layer[pozycjaZwyc[0]].weightY),2))
-    print("to jest blad kwantyzacji-->")
-    print(E)
+    #print("to jest blad kwantyzacji-->")
+    #print(E)
 
 def main():
 
@@ -105,27 +105,27 @@ def main():
 		Layer.append(Neuron(weightX,weightY,pot))
 		i+=1
 
-	krokMinimum = 0.01 
+	krokMinimum = 0.001 
 	krokMax = 0.5
-	promienMinimum = 0.01 
-	promienMax =1
-	j=0
-
+	promienMinimum = 0.00000001 
+	promienMax =0.00006
+	epoki=4
+	#training
+	#wykres(Points, Layer)
+	for j in range(epoki):
+		for i in range(1,len(Points)):
+			Points[i].calculateDistance(Layer)
+			if i<np.floor(numOfPoints/2):
+				Points[i].Potentials(Layer, n)
+			r=promienMax*pow(promienMinimum/promienMax,(j/(epoki)))	
+			eta=krokMax*pow(krokMinimum/krokMax,((j)/(epoki)))
+			Points[i].calculateNeuronDistance(Layer)
+			Points[i].updateWeights(Layer,eta,r)
+			if i>2:
+				P=i
+				Points[i].error(Layer,P)
+		#print(" ")
 	wykres(Points, Layer)
-	for i in range(len(Points)):
-		Points[i].calculateDistance(Layer)
-		r=promienMax*pow(promienMinimum/promienMax,(i/numOfPoints))	
-		eta=krokMax*pow(krokMinimum/krokMax,(i/numOfPoints))
-		Points[i].calculateNeuronDistance(Layer)
-		if(i<np.floor(numOfPoints/2)):
-			Points[i].Potentials(Layer)
-		Points[i].updateWeights(Layer,eta,r)
-		if i>1:
-			P=i
-			Points[i].error(Layer,P)
-		print(" ")
-	wykres(Points, Layer)
-
 
 if __name__ == '__main__':
 	main()

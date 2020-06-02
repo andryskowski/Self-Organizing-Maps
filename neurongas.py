@@ -21,7 +21,7 @@ def wykres(Points, Layer):
 
 class Neuron:
 	def __init__(self,weightX,weightY,pot,wynik,kolejnosc):
-		weightX= np.random.uniform(-10,12)
+		weightX= np.random.uniform(-10,10)
 		self.weightX=weightX
 		weightY=np.random.uniform(-10,10)
 		self.weightY=weightY
@@ -37,7 +37,7 @@ class Point:
        self.wynik=wynik
        podPierw=0
        self.podPierw=podPierw
-	   #Neuron jest randomowym punktem z przedzialu [-3,3]
+
    def calculateDistance(self,Layer):
 	   print("wywolano funkcje calculateDistance")
 	   i=0
@@ -48,7 +48,6 @@ class Point:
 	   pozycjaZwyc.clear()
 	   gasOrder.clear()
 	   for i in range(len(Layer)):
-	   		if Layer[i].pot>pmin:
 	   			podPierw=pow((self.x-float(Layer[i].weightX)),2)+pow((self.y-float(Layer[i].weightY)),2)
 	   			Layer[i].wynik=math.sqrt(podPierw)
 	   			print(Layer[i].wynik)
@@ -63,48 +62,33 @@ class Point:
 
 	   print("koniec punktu")
 	   Wyniki.clear()
-	   pozycjaZwyc.append(pozycjaZwyciezcy)
-	   #wywolanie funkcji do liczenia potencjalu
-
-	   #dzialania dla algorytmu gazu neuronowego	   
+	   pozycjaZwyc.append(pozycjaZwyciezcy)   
 	   print(pozycjaZwyc[0], ": to jest pozycja, na ktorej jest zwycieski neuron")
-
-   def Potentials(self, Layer):
-   	for i in range(len(Layer)):
-	   	if i==pozycjaZwyc[0]:   
-	   		Layer[pozycjaZwyc[0]].pot-=pmin
-	   	else:
-	   		Layer[pozycjaZwyc[0]].pot+=(1/100)
 
    def calculateNeuronDistance(self,Layer):
    	d.clear()
    	for i in range(len(Layer)):
-   		if Layer[pozycjaZwyc[0]].pot>pmin:
    			podPierw=pow((float(Layer[pozycjaZwyc[0]].weightX)-float(Layer[i].weightX)),2)+pow((float(Layer[pozycjaZwyc[0]].weightY)-float(Layer[i].weightY)),2)
    			d.append(math.sqrt(podPierw))		
-
-   def updateWeights(self, Layer, eta, r):
-    for i in range(len(Layer)):
-    	if Layer[pozycjaZwyc[0]].pot>pmin:
-        	Layer[i].weightX+=eta*math.exp(-d[i]*d[i]/(2*r*r))*(self.x - Layer[i].weightX)
-        	Layer[i].weightY+=eta*math.exp(-d[i]*d[i]/(2*r*r))*(self.y - Layer[i].weightY)
-   def showPoints(self):
-   	print (self.x, self.y)
 
    def updateWeightsGas(self, Layer, eta, r):
    	for i in range(len(Layer)):
    		Layer[i].weightX+=eta*np.exp(-(Layer[i].kolejnosc)/r)*(self.x - Layer[i].weightX)
    		Layer[i].weightY+=eta*np.exp(-(Layer[i].kolejnosc)/r)*(self.y - Layer[i].weightY)
 
+   def error(self, Layer,P):
+    E=1/P*(pow(self.x-float(Layer[pozycjaZwyc[0]].weightX),2)+pow(self.y-float(Layer[pozycjaZwyc[0]].weightY),2))
+    print("to jest blad kwantyzacji-->")
+    print(E)
+
 def main():
 	numOfPoints=file_len('file.txt')
 	xList, yList = np.loadtxt('file.txt', delimiter=',', unpack=True)
-	w=int(input("1. Kohonen 2. Algorytm gazu neuronowego: "))
 
 	Points=[]
 	i=0
 
-	while i<10000:
+	while i<numOfPoints:
 		Points.append(Point(xList[i],yList[i]))
 		i+=1
 
@@ -120,33 +104,33 @@ def main():
 	q=0
 	pot=0.76
 	n = int(input("Wprowadz liczbe neuronow n: "))
-	while q<100:
+	while q<n:
 		weightX=0
 		weightY=0
 		Layer.append(Neuron(weightX,weightY,pot,wynik,kolejnosc))
 		q+=1
 
-	if w==1:
+	for i in range(len(Points)):
+		if i==50:
+			wykres(Points,Layer)
+		if i==100:
+			wykres(Points,Layer)
+		if i==250:
+			wykres(Points,Layer)
+		if i==1000:
+			wykres(Points,Layer)
+		if i==5000:
+			wykres(Points,Layer)
+		if i==10000:
+			wykres(Points,Layer)		
+		r=promienMax*pow(promienMinimum/promienMax,(i/numOfPoints))	
+		eta=krokMax*pow(krokMinimum/krokMax,(i/numOfPoints))
+		Points[i].calculateDistance(Layer)
+		Points[i].updateWeightsGas(Layer,eta,r)
+		if i>1:
+			P=i
+			Points[i].error(Layer,P)
+	wykres(Points, Layer)
 
-		wykres(Points, Layer)
-		for i in range(len(Points)):
-			Points[i].calculateDistance(Layer)
-			r=promienMax*pow(promienMinimum/promienMax,(i/numOfPoints))	
-			eta=krokMax*pow(krokMinimum/krokMax,(i/numOfPoints))
-			Points[i].calculateNeuronDistance(Layer)
-			if(i<np.floor(numOfPoints/2)):
-				Points[i].Potentials(Layer)
-			Points[i].updateWeights(Layer,eta,r)
-			print(" ")
-		wykres(Points, Layer)
-	
-	else:
-		print("gas")
-		for i in range(len(Points)):
-			r=promienMax*pow(promienMinimum/promienMax,(i/numOfPoints))	
-			eta=krokMax*pow(krokMinimum/krokMax,(i/numOfPoints))
-			Points[i].calculateDistance(Layer)
-			Points[i].updateWeightsGas(Layer,eta,r)
-		wykres(Points, Layer)
 if __name__ == '__main__':
 	main()

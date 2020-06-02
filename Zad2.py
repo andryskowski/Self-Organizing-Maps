@@ -52,17 +52,6 @@ class Point:
 
 	   sortWyniki=np.sort(Wyniki)
 	   p=0
-	   for p in range(len(Wyniki)):
-	   	for k in range(len(Wyniki)):
-	   		if Wyniki[p]==sortWyniki[k]:
-	   			Layer[p].kolejnosc=k
-	   
-	   for l in range(len(Layer)):
-	   	print(Layer[l].kolejnosc)
-
-	   print(sortWyniki)
-
-
 	   pozycjaZwyciezcy=np.argmin(Wyniki,axis=0)
 	   print(min(Wyniki), ": najmniejsza odleglosc miedzy Punktem, a Neuronem (zwycieskim)")
 	   Wyniki.clear()
